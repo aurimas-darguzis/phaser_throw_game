@@ -4,7 +4,8 @@ export default class Preload extends Phaser.Scene {
     }
 
     preload() {
-        this.load.spritesheet('engineer', '/images/Engineer.png', { frameWidth: 32, frameHeight: 32, endFrame: 16 });
+        this.load.image('engineer', '/images/knife.png');
+        this.load.image('engineer', '/images/target.png');
     }
 
     create() {
