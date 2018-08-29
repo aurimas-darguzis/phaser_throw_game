@@ -47,6 +47,56 @@ export default class Game extends Phaser.Scene {
     }
 
     throwKnife() {
+        if(this.canThrow) {
+            this.canThrow = false;
+            this.tweens.add({
+                targets: [this.knife],
+                y: this.target.y + this.target.width / 2,
+                duration: config.throwSpeed,
+                callbackScope: this,
+                onComplete: function(tween) {
+                    let legalHit = true;
+                    const children = this.knifeGroup.getChildren();
+                    for(let i = 0; i < children.length; i++) {
+                        // is the knife too close to the i-th knife?
+                        if(Math.abs(Phaser.Math.Angle.ShortestBetween(this.target.angle, children[i].impactAngle)) < config.minAngle){
+                            legalHit = false;
+                            break;
+                        }
+                    }
 
+                    if(legalHit) {
+                        this.canThrow = true;
+                        const knife = this.add.sprite(this.knife.x, this.knife.y, 'knife');
+                        knife.impactAngle = this.target.angle;
+                        this.knifeGroup.add(knife);
+                        this.knife.y = this.config.height / 5 * 4;
+                    } else {
+                        this.tweens.add({
+                            targets: [this.knife],
+                            y: this.config.height + this.knife.height, // this.config think it refers to global config
+                            rotation: 5,
+                            duration: config.throwSpeed * 4, // config. this it refers to this class config variable
+                            callbackScope: this,
+                            onComplete: function(tween) {
+                                this.scene.start('play'); // dbl check this <--
+                            }
+                        })
+                    }
+                }
+            });
+        }
+    }
+
+    update(time, delta) {
+        this.target.angle += this.currentRotationSpeed;
+        const children = this.knifeGroup.getChildren();
+        for(let i = 0; i < children.length; i++) {
+            children[i].angle += this.currentRotationSpeed;
+            const radians = Phaser.Math.DegToRad(children[i].angle + 90);
+            children[i].x = this.target.x + (this.target.width / 2) * Math.cos(radians);
+            children[i].y = this.target.y + (this.target.width / 2) * Math.sin(radians);
+        }
+        this.currentRotationSpeed = Phaser.Math.Linear(this.currentRotationSpeed, this.newRotationSpeed, delta / 1000);
     }
 }
