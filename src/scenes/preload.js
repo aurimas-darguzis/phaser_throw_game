@@ -4,8 +4,8 @@ export default class Preload extends Phaser.Scene {
     }
 
     preload() {
-        this.load.image('engineer', '/images/knife.png');
-        this.load.image('engineer', '/images/target.png');
+        this.load.image('knife', '/images/knife.png');
+        this.load.image('target', '/images/target.png');
     }
 
     create() {
